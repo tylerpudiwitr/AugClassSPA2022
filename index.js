@@ -38,7 +38,7 @@ router.hooks({
       case "Home":
         axios
           .get(
-            `https://api.openweathermap.org/data/2.5/weather?appid=fbb30b5d6cf8e164ed522e5082b49064&q=st%20louis`
+            `https://api.openweathermap.org/data/2.5/weather?appid=${process.env.OPEN_WEATHER_MAP_API_KEY}&q=st%20louis`
           )
           .then(response => {
             const kelvinToFahrenheit = kelvinTemp =>
@@ -55,23 +55,25 @@ router.hooks({
             store.Home.weather.description = response.data.weather[0].main;
             done();
           })
-          .catch(err => console.log(err));
+          .catch(err => {
+            console.log(err);
+            done();
+          });
+        break;
+      case "Pizza":
+        axios
+          .get(`${process.env.PIZZA_PLACE_API_URL}`)
+          .then(response => {
+            store.Pizza.pizzas = response.data;
+            done();
+          })
+          .catch(error => {
+            console.log("It puked", error);
+            done();
+          });
         break;
       default:
         done();
     }
   }
 });
-
-router
-  .on({
-    "/": () => render(),
-    ":view": params => {
-      let view = capitalize(params.data.view);
-      render(store[view]);
-    }
-  })
-  .resolve();
-
-// fetch("https://jsonplaceholder.typicode./post");
-// add menu toggle to bars icon in nav bar
