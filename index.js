@@ -11,8 +11,6 @@ function render(state = store.Home) {
     ${Nav(store.Links)}
     ${Main(state)}
     ${Footer()}`;
-
-
   router.updatePageLinks();
 }
 
@@ -26,7 +24,7 @@ router
   })
   .resolve();
 
-fetch("https://jsonplaceholder.typicode.com/posts")
+fetch("https://jsonplaceholder.typicode.com/posts");
 // add menu toggle to bars icon in nav bar
 document.querySelector(".fa-bars").addEventListener("click", () => {
   document.querySelector("nav > ul").classList.toggle("hidden--mobile");
