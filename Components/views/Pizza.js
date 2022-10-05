@@ -1,6 +1,6 @@
 //import html from "html-literal";
 
-export default st => `
+export default st =>
 <table id="pizzas">
 <tr><th>Crust</th><th>Cheese</th><th>Sauce</th><th>Toppings</th><th>Customer</th></tr>
 ${st.pizzas
@@ -14,4 +14,3 @@ ${st.pizzas
   .join("")}
 
 </table>
-`;
