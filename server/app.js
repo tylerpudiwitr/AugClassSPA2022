@@ -55,7 +55,7 @@ app.get("/echo/:input", (request, response) => {
   response.status(418).json({ echo: message });
 });
 
-app.use(`/pizzas`, pizzas);
+app.use("/pizzas", pizzas);
 
 const PORT = process.env.PORT || 4040; // we use || to provide a default value
 
