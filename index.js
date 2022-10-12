@@ -2,9 +2,8 @@ import { Header, Nav, Main, Footer } from "./Components";
 import * as store from "./store";
 import Navigo from "navigo";
 import { capitalize } from "lodash";
-import dotenv from "dotenv";
+
 import axios from "axios";
-dotenv.config();
 
 const router = new Navigo("/");
 
@@ -24,6 +23,46 @@ function afterRender(state) {
   document.querySelector(".fa-bars").addEventListener("click", () => {
     document.querySelector("nav > ul").classList.toggle("hidden--mobile");
   });
+  if (state.view === "Home") {
+    console.log("Hello");
+  }
+  if (state.view === "Order") {
+    document.querySelector("form").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const inputList = event.target.elements;
+      console.log("Input Element List", inputList);
+
+      const toppings = [];
+      // Interate over the toppings input group elements
+      for (let input of inputList.toppings) {
+        // If the value of the checked attribute is true then add the value to the toppings array
+        if (input.checked) {
+          toppings.push(input.value);
+        }
+      }
+
+      const requestData = {
+        customer: inputList.customer.value,
+        crust: inputList.crust.value,
+        cheese: inputList.cheese.value,
+        sauce: inputList.sauce.value,
+        toppings: toppings
+      };
+      console.log("request Body", requestData);
+
+      axios
+        .post(`${process.env.PIZZA_PLACE_API_URL}`, requestData)
+        .then(response => {
+          // Push the new pizza onto the Pizza state pizzas attribute, so it can be displayed in the pizza list
+          store.Pizza.pizzas.push(response.data);
+          router.navigate("/Pizza");
+        })
+        .catch(error => {
+          console.log("It puked", error);
+        });
+    });
+  }
 }
 
 router.hooks({
@@ -38,7 +77,7 @@ router.hooks({
       case "Home":
         axios
           .get(
-            `https://api.openweathermap.org/data/2.5/weather?appid=fbb30b5d6cf8e164ed522e5082b49064&q=st%20louis`
+            `https://api.openweathermap.org/data/2.5/weather?appid=${process.env.OPEN_WEATHER_MAP_API_KEY}&q=st%20louis`
           )
           .then(response => {
             const kelvinToFahrenheit = kelvinTemp =>
@@ -55,14 +94,28 @@ router.hooks({
             store.Home.weather.description = response.data.weather[0].main;
             done();
           })
-          .catch(err => console.log(err));
+          .catch(err => {
+            console.log(err);
+            done();
+          });
+        break;
+      case "Pizza":
+        axios
+          .get(`${process.env.PIZZA_PLACE_API_URL}`)
+          .then(response => {
+            store.Pizza.pizzas = response.data;
+            done();
+          })
+          .catch(error => {
+            console.log("It puked", error);
+            done();
+          });
         break;
       default:
         done();
     }
   }
 });
-
 router
   .on({
     "/": () => render(),
@@ -72,6 +125,3 @@ router
     }
   })
   .resolve();
-
-// fetch("https://jsonplaceholder.typicode./post");
-// add menu toggle to bars icon in nav bar
